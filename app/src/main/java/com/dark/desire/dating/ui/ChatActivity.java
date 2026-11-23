@@ -69,7 +69,7 @@ public class ChatActivity extends AppCompatActivity implements ChatEventListener
             finish();
         });
 
-        etMessage.addTextChangedWatcher(new TextWatcher() {
+        etMessage.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
