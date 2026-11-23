@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">DARK DESIRE DATING</string>
+    <string name="tagline">Ignite Secret Anonymous Desires</string>
+    
+    <!-- Navigation -->
+    <string name="nav_match">Match</string>
+    <string name="nav_discover">Discover</string>
+    <string name="nav_chats">Chats</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Match Screen -->
+    <string name="matching_title">Stranger Roulette</string>
+    <string name="matching_subtitle">Connect anonymously with someone special</string>
+    <string name="start_matching">START MATCHING</string>
+    <string name="stop_matching">CANCEL SEARCH</string>
+    <string name="searching_status">Scanning the shadows for a stranger…</string>
+    <string name="stranger_found">Partner Found! Connecting…</string>
+
+    <!-- Profile Setup -->
+    <string name="setup_title">Create Secret Alias</string>
+    <string name="setup_subtitle">Your real identity remains 100% hidden</string>
+    <string name="alias_hint">Enter Nickname / Codename</string>
+    <string name="age_hint">Your Age</string>
+    <string name="gender_title">Your Gender</string>
+    <string name="looking_for_title">Interested In</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="gender_other">Other</string>
+    <string name="looking_anyone">Anyone</string>
+    <string name="bio_hint">Short desire / secret mood…</string>
+    <string name="btn_enter_realm">ENTER THE REALM</string>
+
+    <!-- Chat Screen -->
+    <string name="chat_partner_default">Secret Stranger</string>
+    <string name="chat_type_hint">Whisper a message…</string>
+    <string name="btn_next_stranger">NEXT</string>
+    <string name="btn_leave">LEAVE</string>
+    <string name="typing_indicator">Stranger is whispering…</string>
+    <string name="partner_left_msg">Stranger disconnected. Tap Next to find another soul.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Secret Settings</string>
+    <string name="server_url_label">Server Endpoint (WebSocket)</string>
+    <string name="incognito_mode">Ghost Stealth Mode</string>
+    <string name="haptic_feedback">Sensory Vibration</string>
+    <string name="clear_history">Wipe Chat History</string>
+    <string name="save_settings">SAVE PROFILE</string>
+</resources>

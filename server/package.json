@@ -1,0 +1,12 @@
+{
+  "name": "dark-desire-server",
+  "version": "1.0.0",
+  "description": "High-performance WebSocket Matchmaking and Live Stranger Chat Server for Dark Desire Dating",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_match"
+        android:icon="@drawable/ic_radar"
+        android:title="@string/nav_match" />
+    <item
+        android:id="@+id/nav_discover"
+        android:icon="@drawable/ic_discover"
+        android:title="@string/nav_discover" />
+    <item
+        android:id="@+id/nav_chats"
+        android:icon="@drawable/ic_chat"
+        android:title="@string/nav_chats" />
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/ic_profile"
+        android:title="@string/nav_profile" />
+</menu>

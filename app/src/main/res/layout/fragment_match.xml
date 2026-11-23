@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_dark_gradient"
+    android:padding="20dp">
+
+    <!-- Title & Subtitle -->
+    <LinearLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.04"
+            android:text="@string/matching_title"
+            android:textColor="@color/text_primary"
+            android:textSize="22sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/matching_subtitle"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- Radar Visualizer Container -->
+    <RelativeLayout
+        android:id="@+id/radarContainer"
+        android:layout_width="260dp"
+        android:layout_height="260dp"
+        android:layout_centerInParent="true">
+
+        <!-- Outer Radar Circle -->
+        <View
+            android:id="@+id/radarRingOuter"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_radar_circle" />
+
+        <!-- Middle Radar Circle -->
+        <View
+            android:id="@+id/radarRingMid"
+            android:layout_width="190dp"
+            android:layout_height="190dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/bg_radar_circle" />
+
+        <!-- Inner Radar Circle -->
+        <View
+            android:id="@+id/radarRingInner"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/bg_radar_circle" />
+
+        <!-- Center Glowing Icon -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/centerAvatar"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_centerInParent="true"
+            android:background="@color/bg_card_elevated"
+            android:padding="8dp"
+            android:src="@drawable/ic_launcher_foreground"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+            app:strokeColor="@color/accent_pink"
+            app:strokeWidth="2dp" />
+
+    </RelativeLayout>
+
+    <!-- Status Text & Spinner -->
+    <LinearLayout
+        android:id="@+id/statusLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/radarContainer"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:id="@+id/matchProgress"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:indeterminateTint="@color/accent_pink"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/tvMatchStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Tap Start to connect with a secret stranger"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- Matching Preference Info Chips -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/btnStartMatching"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvPreferenceFilter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_dark"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="6dp"
+            android:text="Target: Anyone"
+            android:textColor="@color/accent_cyan"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- Start / Stop Button -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnStartMatching"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_button_glow"
+        android:fontFamily="sans-serif-black"
+        android:letterSpacing="0.05"
+        android:text="@string/start_matching"
+        android:textColor="@color/text_primary"
+        android:textSize="16sp" />
+
+</RelativeLayout>

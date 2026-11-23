@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Desire Theme Primary Colors -->
+    <color name="bg_dark">#0A0A0F</color>
+    <color name="bg_card">#14141E</color>
+    <color name="bg_card_elevated">#1D1D2B</color>
+    <color name="bg_input">#181824</color>
+
+    <!-- Accent Passion & Desire Colors -->
+    <color name="accent_pink">#FF0055</color>
+    <color name="accent_pink_dark">#B3003C</color>
+    <color name="accent_purple">#9D00FF</color>
+    <color name="accent_cyan">#00F0FF</color>
+    <color name="accent_gold">#FFB800</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B8B8CE</color>
+    <color name="text_muted">#686882</color>
+
+    <!-- Chat Bubble Colors -->
+    <color name="bubble_sent_start">#FF0055</color>
+    <color name="bubble_sent_end">#9D00FF</color>
+    <color name="bubble_received">#212130</color>
+
+    <!-- Status Colors -->
+    <color name="status_online">#00E676</color>
+    <color name="status_matching">#00F0FF</color>
+    <color name="status_offline">#757575</color>
+</resources>
