@@ -48,7 +48,7 @@ public class UserCardAdapter extends RecyclerView.Adapter<UserCardAdapter.UserVi
         holder.tvAgeCountry.setText(user.getAge() + " yrs • " + user.getCountry());
         holder.tvBio.setText(user.getBio());
 
-        holder.btnChat.setOnClickListener(v -> {
+        holder.btnCardChat.setOnClickListener(v -> {
             if (listener != null) listener.onChatClicked(user);
         });
     }
