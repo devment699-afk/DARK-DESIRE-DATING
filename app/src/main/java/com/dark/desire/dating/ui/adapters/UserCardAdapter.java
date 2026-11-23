@@ -42,8 +42,12 @@ public class UserCardAdapter extends RecyclerView.Adapter<UserCardAdapter.UserVi
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         UserProfile user = users.get(position);
         holder.tvAlias.setText(user.getAlias());
-        holder.tvAgeGender.setText(user.getAge() + " • " + (user.getGender().equalsIgnoreCase("Female") ? "F" : "M"));
+
+        String genderLabel = user.getGender().equalsIgnoreCase("Male") ? "Male ♂" : "Female ♀";
+        holder.tvGender.setText(genderLabel);
+        holder.tvAgeCountry.setText(user.getAge() + " yrs • " + user.getCountry());
         holder.tvBio.setText(user.getBio());
+
         holder.btnChat.setOnClickListener(v -> {
             if (listener != null) listener.onChatClicked(user);
         });
@@ -55,15 +59,16 @@ public class UserCardAdapter extends RecyclerView.Adapter<UserCardAdapter.UserVi
     }
 
     static class UserViewHolder extends RecyclerView.ViewHolder {
-        TextView tvAlias, tvAgeGender, tvBio;
-        MaterialButton btnChat;
+        TextView tvAlias, tvGender, tvAgeCountry, tvBio;
+        MaterialButton btnCardChat;
 
         UserViewHolder(View itemView) {
             super(itemView);
             tvAlias = itemView.findViewById(R.id.tvCardAlias);
-            tvAgeGender = itemView.findViewById(R.id.tvCardAgeGender);
+            tvGender = itemView.findViewById(R.id.tvCardGender);
+            tvAgeCountry = itemView.findViewById(R.id.tvCardAgeCountry);
             tvBio = itemView.findViewById(R.id.tvCardBio);
-            btnChat = itemView.findViewById(R.id.btnCardChat);
+            btnCardChat = itemView.findViewById(R.id.btnCardChat);
         }
     }
 }

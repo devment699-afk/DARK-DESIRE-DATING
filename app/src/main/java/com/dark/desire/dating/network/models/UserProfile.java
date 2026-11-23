@@ -15,8 +15,8 @@ public class UserProfile {
     @SerializedName("gender")
     private String gender;
 
-    @SerializedName("lookingFor")
-    private String lookingFor;
+    @SerializedName("country")
+    private String country;
 
     @SerializedName("bio")
     private String bio;
@@ -24,24 +24,35 @@ public class UserProfile {
     @SerializedName("avatarIndex")
     private int avatarIndex;
 
+    @SerializedName("isOnline")
+    private boolean isOnline;
+
     public UserProfile() {
     }
 
-    public UserProfile(String userId, String alias, int age, String gender, String lookingFor, String bio, int avatarIndex) {
+    public UserProfile(String userId, String alias, int age, String gender, String country, String bio, int avatarIndex) {
         this.userId = userId;
         this.alias = alias;
         this.age = age;
         this.gender = gender;
-        this.lookingFor = lookingFor;
+        this.country = country;
         this.bio = bio;
         this.avatarIndex = avatarIndex;
+        this.isOnline = true;
     }
 
-    public String getUserId() { return userId; }
-    public String getAlias() { return alias; }
-    public int getAge() { return age; }
-    public String getGender() { return gender; }
-    public String getLookingFor() { return lookingFor; }
-    public String getBio() { return bio; }
+    public String getUserId() { return userId != null ? userId : alias; }
+    public String getAlias() { return alias != null ? alias : "Anonymous"; }
+    public int getAge() { return age > 0 ? age : 22; }
+    public String getGender() { return gender != null ? gender : "Female"; }
+    public String getCountry() { return country != null ? country : "India"; }
+    public String getBio() { return bio != null ? bio : "Living in the shadows..."; }
     public int getAvatarIndex() { return avatarIndex; }
+    public boolean isOnline() { return isOnline; }
+
+    public void setAlias(String alias) { this.alias = alias; }
+    public void setAge(int age) { this.age = age; }
+    public void setGender(String gender) { this.gender = gender; }
+    public void setCountry(String country) { this.country = country; }
+    public void setBio(String bio) { this.bio = bio; }
 }

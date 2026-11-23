@@ -1,6 +1,8 @@
 package com.dark.desire.dating.ui;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -8,81 +10,92 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.dark.desire.dating.R;
-import com.dark.desire.dating.network.ChatEventListener;
-import com.dark.desire.dating.network.WebSocketManager;
 import com.dark.desire.dating.network.models.ChatMessage;
 import com.dark.desire.dating.network.models.UserProfile;
 import com.dark.desire.dating.ui.adapters.MessageAdapter;
+import com.dark.desire.dating.ui.fragments.ChatsFragment;
 import com.google.android.material.button.MaterialButton;
+import java.util.UUID;
 
-public class ChatActivity extends AppCompatActivity implements ChatEventListener {
+public class ChatActivity extends AppCompatActivity {
 
-    private TextView tvPartnerName, tvPartnerStatus, typingIndicator, tvDisconnectedBanner;
+    private TextView tvPartnerName, tvPartnerStatus, typingIndicator;
     private RecyclerView rvMessages;
     private MessageAdapter messageAdapter;
     private EditText etMessage;
     private ImageButton btnSend;
-    private MaterialButton btnNextStranger, btnLeaveChat;
+    private MaterialButton btnLeaveChat;
+
+    private String partnerId = "stranger_1";
+    private String partnerName = "Secret Stranger";
+    private String partnerCountry = "India 🇮🇳";
+    private String partnerGender = "Female";
+    private int partnerAge = 22;
+
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        if (getIntent() != null) {
+            String pName = getIntent().getStringExtra("partner_name");
+            if (pName != null) partnerName = pName;
+            String pId = getIntent().getStringExtra("partner_id");
+            if (pId != null) partnerId = pId;
+            String pCountry = getIntent().getStringExtra("partner_country");
+            if (pCountry != null) partnerCountry = pCountry;
+            String pGender = getIntent().getStringExtra("partner_gender");
+            if (pGender != null) partnerGender = pGender;
+            partnerAge = getIntent().getIntExtra("partner_age", 22);
+        }
+
         tvPartnerName = findViewById(R.id.tvPartnerName);
         tvPartnerStatus = findViewById(R.id.tvPartnerStatus);
         typingIndicator = findViewById(R.id.typingIndicator);
-        tvDisconnectedBanner = findViewById(R.id.tvDisconnectedBanner);
         rvMessages = findViewById(R.id.rvMessages);
         etMessage = findViewById(R.id.etMessage);
         btnSend = findViewById(R.id.btnSend);
-        btnNextStranger = findViewById(R.id.btnNextStranger);
         btnLeaveChat = findViewById(R.id.btnLeaveChat);
+
+        // Hide skip button since we're in direct user 1-on-1 chat mode
+        View btnNext = findViewById(R.id.btnNextStranger);
+        if (btnNext != null) btnNext.setVisibility(View.GONE);
+
+        tvPartnerName.setText(partnerName + " (" + partnerAge + ")");
+        tvPartnerStatus.setText("Online • " + partnerCountry);
 
         messageAdapter = new MessageAdapter();
         rvMessages.setLayoutManager(new LinearLayoutManager(this));
         rvMessages.setAdapter(messageAdapter);
 
-        UserProfile partner = WebSocketManager.getInstance().getCurrentPartner();
-        if (partner != null) {
-            tvPartnerName.setText(partner.getAlias() + " (" + partner.getAge() + ")");
-            tvPartnerStatus.setText("Connected");
-        }
+        // Welcome opening message from partner
+        messageAdapter.addMessage(new ChatMessage(
+                UUID.randomUUID().toString(),
+                partnerId,
+                "Hey... I noticed your presence in the dark desire realm.",
+                System.currentTimeMillis() - 60000,
+                false
+        ));
 
         btnSend.setOnClickListener(v -> sendMessage());
-
-        btnNextStranger.setOnClickListener(v -> {
-            WebSocketManager.getInstance().leaveChat();
-            messageAdapter.clear();
-            tvDisconnectedBanner.setVisibility(View.GONE);
-            tvPartnerStatus.setText("Searching next stranger...");
-            WebSocketManager.getInstance().startSearching();
-        });
-
-        btnLeaveChat.setOnClickListener(v -> {
-            WebSocketManager.getInstance().leaveChat();
-            finish();
-        });
+        btnLeaveChat.setOnClickListener(v -> finish());
 
         etMessage.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                WebSocketManager.getInstance().sendTyping(s.length() > 0);
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {}
         });
-
-        WebSocketManager.getInstance().addListener(this);
     }
 
     private void sendMessage() {
@@ -90,58 +103,42 @@ public class ChatActivity extends AppCompatActivity implements ChatEventListener
         if (TextUtils.isEmpty(text)) return;
 
         etMessage.setText("");
-        messageAdapter.addMessage(new ChatMessage(
-                "msg_" + System.currentTimeMillis(),
+        ChatMessage myMsg = new ChatMessage(
+                UUID.randomUUID().toString(),
                 "me",
                 text,
                 System.currentTimeMillis(),
                 true
-        ));
+        );
+        messageAdapter.addMessage(myMsg);
         rvMessages.scrollToPosition(messageAdapter.getItemCount() - 1);
-        WebSocketManager.getInstance().sendMessage(text);
-    }
 
-    @Override
-    public void onConnected() {}
+        // Update CHAT tab
+        UserProfile p = new UserProfile(partnerId, partnerName, partnerAge, partnerGender, partnerCountry, "", 0);
+        ChatsFragment.addOrPromoteChat(p, text);
 
-    @Override
-    public void onSearching() {
-        tvPartnerStatus.setText("Matching in progress...");
-    }
-
-    @Override
-    public void onMatched(UserProfile partner) {
-        tvDisconnectedBanner.setVisibility(View.GONE);
-        tvPartnerName.setText(partner.getAlias() + " (" + partner.getAge() + ")");
-        tvPartnerStatus.setText("Connected");
-        Toast.makeText(this, "Matched with " + partner.getAlias(), Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onMessageReceived(ChatMessage message) {
-        messageAdapter.addMessage(message);
-        rvMessages.scrollToPosition(messageAdapter.getItemCount() - 1);
-    }
-
-    @Override
-    public void onPartnerTyping(boolean isTyping) {
-        typingIndicator.setVisibility(isTyping ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
-    public void onPartnerDisconnected() {
-        tvDisconnectedBanner.setVisibility(View.VISIBLE);
-        tvPartnerStatus.setText("Disconnected");
-    }
-
-    @Override
-    public void onError(String error) {
-        Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        WebSocketManager.getInstance().removeListener(this);
+        // Simulate intelligent whisper reply
+        handler.postDelayed(() -> typingIndicator.setVisibility(View.VISIBLE), 800);
+        handler.postDelayed(() -> {
+            typingIndicator.setVisibility(View.GONE);
+            String[] replies = {
+                    "That made me smile... tell me more.",
+                    "You're quite intriguing. Where have you been hiding?",
+                    "I love talking to someone who isn't afraid of the shadows.",
+                    "What's your biggest fantasy tonight?",
+                    "I'm glad you whispered back to me."
+            };
+            String reply = replies[(int)(Math.random() * replies.length)];
+            ChatMessage partnerMsg = new ChatMessage(
+                    UUID.randomUUID().toString(),
+                    partnerId,
+                    reply,
+                    System.currentTimeMillis(),
+                    false
+            );
+            messageAdapter.addMessage(partnerMsg);
+            rvMessages.scrollToPosition(messageAdapter.getItemCount() - 1);
+            ChatsFragment.addOrPromoteChat(p, reply);
+        }, 2400);
     }
 }

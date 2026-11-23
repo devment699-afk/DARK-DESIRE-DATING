@@ -28,7 +28,6 @@ public class WebSocketManager {
 
     private WebSocket webSocket;
     private boolean isConnected = false;
-    private boolean isSearching = false;
     private UserProfile currentPartner = null;
 
     private WebSocketManager() {
@@ -60,9 +59,8 @@ public class WebSocketManager {
     }
 
     public void connect() {
-        String serverUrl = PrefsManager.getInstance().getServerUrl();
         try {
-            Request request = new Request.Builder().url(serverUrl).build();
+            Request request = new Request.Builder().url("wss://dark-desire-server.onrender.com").build();
             webSocket = client.newWebSocket(request, new WebSocketListener() {
                 @Override
                 public void onOpen(WebSocket ws, Response response) {
@@ -85,7 +83,6 @@ public class WebSocketManager {
                 @Override
                 public void onFailure(WebSocket ws, Throwable t, Response response) {
                     isConnected = false;
-                    // If remote server is unreachable, we allow intelligent simulation fallback
                 }
             });
         } catch (Exception e) {
@@ -93,121 +90,23 @@ public class WebSocketManager {
         }
     }
 
-    public void startSearching() {
-        isSearching = true;
-        mainHandler.post(() -> {
-            for (ChatEventListener l : listeners) l.onSearching();
-        });
-
-        if (isConnected && webSocket != null) {
-            JsonObject json = new JsonObject();
-            json.addProperty("action", "join_queue");
-            json.addProperty("userId", PrefsManager.getInstance().getUserId());
-            json.addProperty("alias", PrefsManager.getInstance().getAlias());
-            json.addProperty("gender", PrefsManager.getInstance().getGender());
-            json.addProperty("lookingFor", PrefsManager.getInstance().getLookingFor());
-            json.addProperty("age", PrefsManager.getInstance().getAge());
-            webSocket.send(json.toString());
-        } else {
-            // Smart offline matching simulation: pairs with a secret stranger after 2.5s radar scan!
-            mainHandler.postDelayed(() -> {
-                if (isSearching) {
-                    isSearching = false;
-                    String[] aliases = {"Velvet Whisper", "Midnight Shadow", "Scarlet Rose", "Phantom Desire", "Crimson Flame", "Luna Eclipse"};
-                    String alias = aliases[(int)(Math.random() * aliases.length)];
-                    currentPartner = new UserProfile(
-                            "stranger_" + System.currentTimeMillis(),
-                            alias,
-                            21 + (int)(Math.random() * 8),
-                            "Female",
-                            "Anyone",
-                            "Looking for someone mysterious...",
-                            (int)(Math.random() * 5)
-                    );
-                    for (ChatEventListener l : listeners) {
-                        l.onMatched(currentPartner);
-                    }
-                }
-            }, 2500);
-        }
+    public void setCurrentPartner(UserProfile partner) {
+        this.currentPartner = partner;
     }
 
-    public void stopSearching() {
-        isSearching = false;
-        if (isConnected && webSocket != null) {
-            JsonObject json = new JsonObject();
-            json.addProperty("action", "leave_queue");
-            json.addProperty("userId", PrefsManager.getInstance().getUserId());
-            webSocket.send(json.toString());
-        }
+    public UserProfile getCurrentPartner() {
+        return currentPartner;
     }
 
     public void sendMessage(String text) {
         long timestamp = System.currentTimeMillis();
-        ChatMessage msg = new ChatMessage(UUID.randomUUID().toString(), PrefsManager.getInstance().getUserId(), text, timestamp, true);
-
-        if (isConnected && webSocket != null) {
+        if (isConnected && webSocket != null && currentPartner != null) {
             JsonObject json = new JsonObject();
             json.addProperty("action", "send_message");
-            json.addProperty("partnerId", currentPartner != null ? currentPartner.getUserId() : "");
+            json.addProperty("partnerId", currentPartner.getUserId());
             json.addProperty("text", text);
             json.addProperty("timestamp", timestamp);
             webSocket.send(json.toString());
-        } else if (currentPartner != null) {
-            // Automated playful stranger simulation response
-            simulateStrangerReply(text);
-        }
-    }
-
-    private void simulateStrangerReply(String userMsg) {
-        mainHandler.postDelayed(() -> {
-            for (ChatEventListener l : listeners) l.onPartnerTyping(true);
-        }, 1000);
-
-        mainHandler.postDelayed(() -> {
-            for (ChatEventListener l : listeners) l.onPartnerTyping(false);
-            String[] replies = {
-                    "Hey there... I was hoping I'd match with someone interesting tonight.",
-                    "The night is quiet, but your words sparked my curiosity.",
-                    "Tell me a secret you've never told anyone else.",
-                    "What brought you into the realm of Dark Desire tonight?",
-                    "I love the mystery of talking to a complete stranger...",
-                    "Are you always this bold, or is it just the anonymity talking?"
-            };
-            String reply = replies[(int)(Math.random() * replies.length)];
-            ChatMessage strangerMsg = new ChatMessage(
-                    UUID.randomUUID().toString(),
-                    currentPartner != null ? currentPartner.getUserId() : "stranger",
-                    reply,
-                    System.currentTimeMillis(),
-                    false
-            );
-            for (ChatEventListener l : listeners) {
-                l.onMessageReceived(strangerMsg);
-            }
-        }, 2800);
-    }
-
-    public void sendTyping(boolean isTyping) {
-        if (isConnected && webSocket != null && currentPartner != null) {
-            JsonObject json = new JsonObject();
-            json.addProperty("action", "typing");
-            json.addProperty("partnerId", currentPartner.getUserId());
-            json.addProperty("isTyping", isTyping);
-            webSocket.send(json.toString());
-        }
-    }
-
-    public void leaveChat() {
-        if (isConnected && webSocket != null && currentPartner != null) {
-            JsonObject json = new JsonObject();
-            json.addProperty("action", "leave_chat");
-            json.addProperty("partnerId", currentPartner.getUserId());
-            webSocket.send(json.toString());
-        }
-        currentPartner = null;
-        for (ChatEventListener l : listeners) {
-            l.onPartnerDisconnected();
         }
     }
 
@@ -217,33 +116,14 @@ public class WebSocketManager {
             String action = root.get("action").getAsString();
 
             mainHandler.post(() -> {
-                switch (action) {
-                    case "match_found":
-                        JsonObject partnerObj = root.getAsJsonObject("partner");
-                        currentPartner = gson.fromJson(partnerObj, UserProfile.class);
-                        for (ChatEventListener l : listeners) l.onMatched(currentPartner);
-                        break;
-                    case "chat_message":
-                        ChatMessage msg = gson.fromJson(root.getAsJsonObject("message"), ChatMessage.class);
-                        msg.setSelf(false);
-                        for (ChatEventListener l : listeners) l.onMessageReceived(msg);
-                        break;
-                    case "partner_typing":
-                        boolean typing = root.get("isTyping").getAsBoolean();
-                        for (ChatEventListener l : listeners) l.onPartnerTyping(typing);
-                        break;
-                    case "partner_disconnected":
-                        currentPartner = null;
-                        for (ChatEventListener l : listeners) l.onPartnerDisconnected();
-                        break;
+                if ("chat_message".equals(action)) {
+                    ChatMessage msg = gson.fromJson(root.getAsJsonObject("message"), ChatMessage.class);
+                    msg.setSelf(false);
+                    for (ChatEventListener l : listeners) l.onMessageReceived(msg);
                 }
             });
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public UserProfile getCurrentPartner() {
-        return currentPartner;
     }
 }

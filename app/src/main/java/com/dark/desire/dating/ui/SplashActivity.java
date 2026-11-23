@@ -16,12 +16,12 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            if (PrefsManager.getInstance().isSetupDone()) {
+            if (PrefsManager.getInstance().isLoggedIn()) {
                 startActivity(new Intent(SplashActivity.this, MainActivity.class));
             } else {
-                startActivity(new Intent(SplashActivity.this, SetupProfileActivity.class));
+                startActivity(new Intent(SplashActivity.this, LoginActivity.class));
             }
             finish();
-        }, 1800);
+        }, 1600);
     }
 }

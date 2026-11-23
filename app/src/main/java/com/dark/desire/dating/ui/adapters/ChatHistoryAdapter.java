@@ -12,19 +12,36 @@ import java.util.List;
 
 public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatHistoryAdapter.HistoryViewHolder> {
 
+    public interface OnChatClickListener {
+        void onChatClicked(HistoryItem item);
+    }
+
     public static class HistoryItem {
+        public String userId;
         public String name;
         public String lastMsg;
         public String time;
+        public String gender;
+        public String country;
+        public int age;
 
-        public HistoryItem(String name, String lastMsg, String time) {
+        public HistoryItem(String userId, String name, String lastMsg, String time, String gender, String country, int age) {
+            this.userId = userId;
             this.name = name;
             this.lastMsg = lastMsg;
             this.time = time;
+            this.gender = gender;
+            this.country = country;
+            this.age = age;
         }
     }
 
     private final List<HistoryItem> items = new ArrayList<>();
+    private final OnChatClickListener listener;
+
+    public ChatHistoryAdapter(OnChatClickListener listener) {
+        this.listener = listener;
+    }
 
     public void setItems(List<HistoryItem> list) {
         items.clear();
@@ -45,6 +62,10 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatHistoryAdapter.
         holder.tvName.setText(item.name);
         holder.tvLastMsg.setText(item.lastMsg);
         holder.tvTime.setText(item.time);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onChatClicked(item);
+        });
     }
 
     @Override
